@@ -71,6 +71,7 @@
 #include "GameClient/GadgetSlider.h"
 #include "GameClient/GameText.h"
 #include "GameClient/HeaderTemplate.h"
+#include "GameClient/GlobalLanguage.h"
 
 
 
@@ -619,7 +620,15 @@ static Bool parseFont( const char *token, WinInstanceData *instData,
 
 	if( TheFontLibrary )
 	{
-		GameFont *font = TheFontLibrary->getFont( AsciiString(fontName), fontSize, fontBold );
+		// TheSuperHackers @tweak Scale literal FONT sizes in .wnd layouts for the current
+		// resolution, the same way HEADERTEMPLATE fonts are scaled. Without this, any widget
+		// that declares its own FONT stays locked at its 800x600 point size. Set
+		// ResolutionFontAdjustment = 0 in Options.ini to restore the unscaled sizes.
+		Int adjustedFontSize = fontSize;
+		if( TheGlobalLanguageData )
+			adjustedFontSize = TheGlobalLanguageData->adjustFontSize( fontSize );
+
+		GameFont *font = TheFontLibrary->getFont( AsciiString(fontName), adjustedFontSize, fontBold );
 		if( font )
 			instData->m_font = font;
 	}
